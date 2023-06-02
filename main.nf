@@ -62,8 +62,8 @@ process RAIZ {
 }
 
 workflow {
-    METRICAS()
-    RAIZ()
+   x = METRICAS()
+    RAIZ(x)
     
     
 }
