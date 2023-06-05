@@ -1,19 +1,19 @@
 
 process METRICAS {
+    container 'laribritto/geneplast:v1.1'
     output: path 'grafico.pdf'
-            path 'geneids.rda'
+            path 'cogdata.rda'
             path 'genecogs.rda'
             path 'phyloTree.rda'
             path 'sspids.rda'
-   
-   
     script:
     """
-    /usr/bin/Rscript
+    #!/usr/bin/Rscript
 
     # Importando dados
     library(geneplast)
     library(tidyr)
+    library(ggplot2)
     data(gpdata.gs)
 
     ogp <- gplast.preprocess(cogdata=cogdata, sspids=sspids, cogids=cogids, verbose=TRUE)
@@ -22,7 +22,7 @@ process METRICAS {
     head(res)
 
     subset <- head(res)
-    subset$cog_id <- row.names(subset)
+    subset\$cog_id <- row.names(subset)
 
     subset <- pivot_longer(subset,-cog_id)
 
@@ -32,20 +32,35 @@ process METRICAS {
     scale_fill_grey() +
     theme_bw()
    dev.off()
-   
+   writeRDS(gpdata.cogdata, "cogdata.rda")
+   writeRDS(gpdata.genecogs, "genecogs.rda")
+   writeRDS(gpdata.cogids, "geneids.rda")
+   writeRDS(gpdata.phyloTree, "phyloTree.rda")
+   writeRDS(gpdata.sspids, "sspids.rda")
     """
 }
 
 process RAIZ {
-    input:  path 'data'
+    container 'laribritto/geneplast:v1.1'
+
+    input: path cogdata
+           path phyloTree
+           path sspids
+        
     output: path 'gproot_NOG40170_9606LCAs.pdf'
             path 'gproot_9606LCAs.pdf'
 
     script:
     """
-    /usr/bin/Rscript
+    #!/usr/bin/Rscript
 
     # Análise evolutiva
+    library(geneplast)
+    library(tidyr)
+    library(ggplot2)
+    load($cogdata)
+    load($phyloTree)
+    load($sspids)
 
     ogr <- groot.preprocess(cogdata=cogdata, phyloTree=phyloTree, spid="9606", verbose=FALSE)
 
@@ -62,12 +77,9 @@ process RAIZ {
 }
 
 workflow {
-   x = METRICAS()
-    RAIZ(x)
-    
-    
+    METRICAS()
+    RAIZ(METRICAS.out[1],METRICAS.out[3],METRICAS.out[4])
 }
 workflow.onComplete {
     log.info ( workflow.success ? "\nVocê é uma máquina de vencer! :) --> $params.outdir/multiqc_report.html\n" : "O fracasso é inevitável" )
 }
-
