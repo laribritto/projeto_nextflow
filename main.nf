@@ -1,9 +1,7 @@
-
 process METRICAS {
     container 'laribritto/geneplast:v1.1'
     output: path 'grafico.pdf'
             path 'cogdata.rda'
-            path 'genecogs.rda'
             path 'phyloTree.rda'
             path 'sspids.rda'
     script:
@@ -32,11 +30,10 @@ process METRICAS {
     scale_fill_grey() +
     theme_bw()
    dev.off()
-   writeRDS(gpdata.cogdata, "cogdata.rda")
-   writeRDS(gpdata.genecogs, "genecogs.rda")
-   writeRDS(gpdata.cogids, "geneids.rda")
-   writeRDS(gpdata.phyloTree, "phyloTree.rda")
-   writeRDS(gpdata.sspids, "sspids.rda")
+   save(cogdata, file = "cogdata.rda")
+   save(cogids, file = "cogids.rda")
+   save(phyloTree, file = "phyloTree.rda")
+   save(sspids, file = "sspids.rda")
     """
 }
 
@@ -78,7 +75,7 @@ process RAIZ {
 
 workflow {
     METRICAS()
-    RAIZ(METRICAS.out[1],METRICAS.out[3],METRICAS.out[4])
+    RAIZ(METRICAS.out[1],METRICAS.out[2],METRICAS.out[3])
 }
 workflow.onComplete {
     log.info ( workflow.success ? "\nVocê é uma máquina de vencer! :) --> $params.outdir/multiqc_report.html\n" : "O fracasso é inevitável" )
