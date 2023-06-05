@@ -14,6 +14,3 @@ RUN R -e "install.packages(c('methods', 'igraph', 'snow', 'ape', 'data.table', '
 
 # Instalar o pacote GenePlast do Bioconductor
 RUN R -e "BiocManager::install('geneplast')"
-
-# Definir diretório de trabalho
-WORKDIR /diretorio
