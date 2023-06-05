@@ -1,4 +1,7 @@
+params.results = 'resultados'
+
 process METRICAS {
+    publishDir "$params.results/resultados", mode: 'copy'
     container 'laribritto/geneplast:v1.1'
     output: path 'grafico.pdf'
             path 'cogdata.rda'
@@ -38,6 +41,7 @@ process METRICAS {
 }
 
 process RAIZ {
+    publishDir "$params.results/resultados", mode: 'copy'
     container 'laribritto/geneplast:v1.1'
 
     input: path cogdata
@@ -55,9 +59,9 @@ process RAIZ {
     library(geneplast)
     library(tidyr)
     library(ggplot2)
-    load($cogdata)
-    load($phyloTree)
-    load($sspids)
+    load('cogdata.rda')
+    load('phyloTree.rda')
+    load('sspids.rda')
 
     ogr <- groot.preprocess(cogdata=cogdata, phyloTree=phyloTree, spid="9606", verbose=FALSE)
 
@@ -74,9 +78,9 @@ process RAIZ {
 }
 
 workflow {
-    METRICAS()
-    RAIZ(METRICAS.out[1],METRICAS.out[2],METRICAS.out[3])
+    METRICAS() 
+    RAIZ(METRICAS.out[1],METRICAS.out[2],METRICAS.out[3]) 
 }
 workflow.onComplete {
-    log.info ( workflow.success ? "\nVocê é uma máquina de vencer! :) --> $params.outdir/multiqc_report.html\n" : "O fracasso é inevitável" )
+    log.info ( workflow.success ? "\nVocê é uma máquina de vencer! :)" : "\nO fracasso é inevitável! :(" )
 }
