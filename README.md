@@ -1,2 +1,6 @@
-# projeto_nextflow
-Projeto desenvolvido para a disciplina de Tópicos Avançados em Bioinformática com ênfase em Nextflow 
+# Project 
+Project developed for the discipline Advanced Topics in Bioinformatics with emphasis on Nextflow!
+
+## Geneplast
+  The project is on adaptation of analysis implemented in package geneplast 1.26.0. 
+
